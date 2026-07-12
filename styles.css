@@ -317,8 +317,21 @@ h1 em { color: var(--acid); font-style: normal; }
 .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .problem-card { min-height: 310px; padding: 30px; background: var(--paper-bright); transition: background .25s, transform .25s var(--ease); }
 .problem-card:hover { position: relative; z-index: 1; background: var(--white); transform: translateY(-6px); }
+.problem-card-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .card-number { color: #3f6f62; font: 700 11px/1 monospace; }
-.problem-card h3 { margin: 88px 0 16px; font-size: 24px; font-weight: 600; line-height: 1.15; letter-spacing: -.035em; }
+.problem-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  color: #3f6f62;
+  background: linear-gradient(135deg, rgba(216,255,82,.22), rgba(255,255,255,.98));
+  border: 1px solid rgba(63,111,98,.16);
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+}
+.problem-icon svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.problem-card h3 { margin: 48px 0 16px; font-size: 24px; font-weight: 600; line-height: 1.15; letter-spacing: -.035em; }
 .problem-card p { margin: 0; color: var(--muted); font-size: 14px; }
 .problem-conclusion { max-width: 760px; margin: 52px 0 0 auto; padding-left: 28px; border-left: 3px solid var(--acid); font-size: 20px; line-height: 1.45; }
 
@@ -359,6 +372,8 @@ h1 em { color: var(--acid); font-style: normal; }
 .expert-body { display: flex; flex: 1; flex-direction: column; padding: 28px 30px 32px; }
 .expert-card h3 { margin: 0 0 18px; font-size: 28px; font-weight: 550; line-height: 1.05; letter-spacing: -.04em; }
 .expert-card p { margin: 0; color: rgba(255,255,255,.55); font-size: 14px; }
+.experts-grid + .expert-trust { margin-top: 56px; margin-bottom: 0; }
+.trust-item-standards strong { font-size: clamp(20px, 2.4vw, 28px); line-height: 1.08; }
 
 .offer-section { padding-block: 90px; background: var(--paper-bright); }
 .offer-card { display: grid; grid-template-columns: 1.4fr .6fr; gap: 70px; padding: 64px; background: var(--acid); border-radius: var(--radius); }
@@ -481,7 +496,10 @@ details p { max-width: 680px; padding: 0 50px 24px 0; margin: 0; color: var(--mu
   .section-heading h2, .result-intro h2, .offer-copy h2, .apply-copy h2 { font-size: clamp(37px, 11vw, 50px); }
   .problem-grid { grid-template-columns: 1fr; }
   .problem-card { min-height: 250px; }
-  .problem-card h3 { margin-top: 60px; }
+  .problem-card-top { gap: 14px; }
+  .problem-icon { width: 50px; height: 50px; border-radius: 16px; }
+  .problem-icon svg { width: 24px; height: 24px; }
+  .problem-card h3 { margin-top: 34px; }
   .problem-conclusion { font-size: 17px; }
   .step { grid-template-columns: 64px 1fr; gap: 16px; padding: 34px 0; }
   .step-marker span { width: 48px; height: 48px; }

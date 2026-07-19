@@ -269,7 +269,7 @@ h1 em { color: var(--acid); font-style: normal; }
 .path-node-active { color: var(--ink); background: var(--acid); border-color: var(--acid); }
 .path-node-active span { color: var(--acid); }
 .path-line { height: 1px; margin-top: 31px; background: linear-gradient(90deg, rgba(216,255,82,.7), rgba(255,255,255,.13)); }
-.board-note { display: flex; gap: 14px; margin-top: 65px; padding: 16px; color: var(--ink); background: var(--paper-bright); border-radius: 3px; transform: rotate(-1deg); }
+.board-note { display: flex; gap: 14px; margin-top: 65px; padding: 16px; color: var(--ink); background: var(--paper-bright); border-radius: 3px; transform: none; }
 .note-icon { width: 25px; height: 25px; flex: 0 0 25px; display: grid; place-items: center; background: var(--acid); border-radius: 50%; font-size: 13px; font-weight: 900; }
 .board-note p { margin: 0; font-size: 12px; line-height: 1.45; }
 

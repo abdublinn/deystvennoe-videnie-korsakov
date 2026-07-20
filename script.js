@@ -1,10 +1,10 @@
 /*
   Перед публикацией укажите URL обработчика формы.
-  Он должен принимать POST с JSON-полями: name, role, contact, case.
-  Если URL пустой, демо-режим скопирует заявку в буфер обмена.
+  Если URL пустой, форма откроет предзаполненное письмо на адрес получателя.
 */
 const LANDING_CONFIG = {
-  submitEndpoint: ""
+  submitEndpoint: "",
+  recipientEmail: "skorsakov.spb@gmail.com"
 };
 
 const header = document.querySelector("[data-header]");
@@ -46,6 +46,26 @@ function showStatus(message, isError = false) {
   status.textContent = message;
   status.classList.toggle("is-error", isError);
   status.classList.add("is-visible");
+}
+
+function openMailDraft(payload) {
+  if (!LANDING_CONFIG.recipientEmail) return false;
+
+  const lines = [
+    "Заявка на кейс-сессию «Действенное видение»",
+    "",
+    `Имя: ${payload.name}`,
+    `Контакт: ${payload.contact}`,
+    "",
+    "Описание кейса:",
+    payload.case
+  ];
+
+  const mailto = new URL(`mailto:${LANDING_CONFIG.recipientEmail}`);
+  mailto.searchParams.set("subject", "Кейс-заявка — Действенное видение");
+  mailto.searchParams.set("body", lines.join("\n"));
+  window.location.href = mailto.toString();
+  return true;
 }
 
 function setFieldInvalid(control, invalid) {
@@ -109,26 +129,21 @@ form?.addEventListener("submit", async (event) => {
     if (LANDING_CONFIG.submitEndpoint) {
       const response = await fetch(LANDING_CONFIG.submitEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       showStatus("Спасибо! Заявка отправлена. Мы свяжемся с вами.");
       form.reset();
     } else {
-      const applicationText = [
-        "Заявка на лабораторию «Действенное видение»",
-        `Имя: ${payload.name}`,
-        `Контакт: ${payload.contact}`,
-        `Кейс: ${payload.case}`
-      ].join("\n");
-      await navigator.clipboard.writeText(applicationText);
-      showStatus("Демо-режим: заявка скопирована. Подключите адрес отправки в script.js перед публикацией.");
+      const mailDraftOpened = openMailDraft(payload);
+      if (!mailDraftOpened) throw new Error("Recipient email is not configured");
+      showStatus("Открыли письмо на skorsakov.spb@gmail.com. Проверьте текст и нажмите отправить.");
     }
   } catch (error) {
     const message = LANDING_CONFIG.submitEndpoint
       ? "Не удалось отправить заявку. Повторите позже."
-      : "Браузер не дал скопировать заявку. Подключите адрес отправки в script.js.";
+      : "Не удалось открыть письмо. Свяжитесь с нами по адресу skorsakov.spb@gmail.com.";
     showStatus(message, true);
   } finally {
     submitButton.disabled = false;

@@ -1,10 +1,16 @@
 /*
-  Перед публикацией укажите URL обработчика формы.
+  Для статического GitHub Pages используем внешний form relay.
   Если URL пустой, форма откроет предзаполненное письмо на адрес получателя.
 */
 const LANDING_CONFIG = {
-  submitEndpoint: "",
+  submitEndpoint: "https://formsubmit.co/ajax/skorsakov.spb@gmail.com",
   recipientEmail: "skorsakov.spb@gmail.com"
+};
+
+const FORM_RELAY_META = {
+  subject: "Кейс-заявка — Действенное видение",
+  source: "Лендинг Сергея Корсакова",
+  template: "table"
 };
 
 const header = document.querySelector("[data-header]");
@@ -46,6 +52,20 @@ function showStatus(message, isError = false) {
   status.textContent = message;
   status.classList.toggle("is-error", isError);
   status.classList.add("is-visible");
+}
+
+function getRelayErrorMessage(rawMessage) {
+  const message = String(rawMessage || "");
+
+  if (/needs Activation|Activate Form/i.test(message)) {
+    return "Форма подключена, но адрес ещё не подтверждён. Сергею нужно открыть письмо от FormSubmit и нажать Activate Form, после чего заявки начнут уходить автоматически.";
+  }
+
+  if (/open this page through a web server/i.test(message)) {
+    return "Локальная проверка relay доступна только через опубликованный сайт. На боевом URL форма уже подключена; для полноценной проверки используйте live-страницу.";
+  }
+
+  return "Не удалось отправить заявку. Повторите позже.";
 }
 
 function openMailDraft(payload) {
@@ -119,6 +139,16 @@ form?.addEventListener("submit", async (event) => {
     case: formData.get("case").trim()
   };
 
+  const relayPayload = {
+    name: payload.name,
+    contact: payload.contact,
+    case: payload.case,
+    _subject: FORM_RELAY_META.subject,
+    _template: FORM_RELAY_META.template,
+    _cc: LANDING_CONFIG.recipientEmail,
+    project: FORM_RELAY_META.source
+  };
+
   const submitButton = form.querySelector("button[type='submit']");
   const initialButtonText = submitButton.innerHTML;
   submitButton.disabled = true;
@@ -129,11 +159,17 @@ form?.addEventListener("submit", async (event) => {
     if (LANDING_CONFIG.submitEndpoint) {
       const response = await fetch(LANDING_CONFIG.submitEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(relayPayload)
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      showStatus("Спасибо! Заявка отправлена. Мы свяжемся с вами.");
+      const result = await response.json().catch(() => null);
+      if (!response.ok || result?.success === "false") {
+        throw new Error(result?.message || `HTTP ${response.status}`);
+      }
+      showStatus("Спасибо! Заявка отправлена Сергею. Он получит её без открытия почтового клиента.");
       form.reset();
     } else {
       const mailDraftOpened = openMailDraft(payload);
@@ -142,7 +178,7 @@ form?.addEventListener("submit", async (event) => {
     }
   } catch (error) {
     const message = LANDING_CONFIG.submitEndpoint
-      ? "Не удалось отправить заявку. Повторите позже."
+      ? getRelayErrorMessage(error?.message)
       : "Не удалось открыть письмо. Свяжитесь с нами по адресу skorsakov.spb@gmail.com.";
     showStatus(message, true);
   } finally {
